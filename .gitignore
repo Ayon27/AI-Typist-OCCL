@@ -1,3 +1,6 @@
+# github
+.github/
+
 # Dependencies
 __pycache__/
 *.py[cod]
