@@ -1,0 +1,23 @@
+# Dependencies
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Results and Outputs
+results/
+paper/
+
+# Data
+data/
+*.csv
+*.pt
+
+# Virtual Environments
+venv/
+env/
+.env
+.venv
+
+# IDEs
+.vscode/
+.idea/
