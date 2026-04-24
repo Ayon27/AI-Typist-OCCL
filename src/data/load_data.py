@@ -5,11 +5,7 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List, Dict, Tuple
 
-# ---------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
+# local constants
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
 
@@ -34,9 +30,7 @@ SYNTHESIZER_NAMES = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Data structures
-# ---------------------------------------------------------------------------
+# dataclasses
 @dataclass
 class CSVRecord:
     """Metadata for a single CSV file in the Mendeley dataset."""
@@ -80,9 +74,7 @@ class DataManifest:
         return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# Core scanning logic
-# ---------------------------------------------------------------------------
+# core scanning
 def _parse_filename(filepath: Path) -> CSVRecord | None:
     """Parse a single CSV filename into a structured record."""
     name = filepath.name
@@ -177,9 +169,7 @@ def scan_raw_data(raw_dir: Path = RAW_DATA_DIR) -> DataManifest:
     return manifest
 
 
-# ---------------------------------------------------------------------------
-# Convenience helpers for downstream modules
-# ---------------------------------------------------------------------------
+# helpers
 def get_subjects_by_collection(manifest: DataManifest) -> Dict[str, List[str]]:
     """Return {collection: [sorted list of subject UIDs]}."""
     coll_map: Dict[str, set] = {}
@@ -195,9 +185,7 @@ def get_synth_records_for_subject(
     return [r for r in manifest.synth_records if r.subject_uid == subject_uid]
 
 
-# ---------------------------------------------------------------------------
-# Stand-alone execution
-# ---------------------------------------------------------------------------
+# testing
 if __name__ == "__main__":
     print("INFO: Phase 1: Data Acquisition & Validation")
     print(f"INFO: Scanning raw data directory: {RAW_DATA_DIR}")

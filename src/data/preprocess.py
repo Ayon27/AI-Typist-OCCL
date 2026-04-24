@@ -22,11 +22,7 @@ from data.load_data import (
 )
 from data.dataset import KeystrokeDynamicsDataset
 
-# ---------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
+# local paths / constants
 PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 WINDOW_SIZE = 50     # N = 50 keystrokes per window
 WINDOW_STRIDE = 25   # 50 % overlap for more training data
@@ -36,9 +32,7 @@ TEST_RATIO = 0.15
 RANDOM_SEED = 42
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# Step 1: Feature Extraction
-# ═══════════════════════════════════════════════════════════════════════════
+# --- feature extraction ---
 
 def extract_features_from_csv(csv_path: Path) -> Optional[np.ndarray]:
     """
@@ -94,9 +88,7 @@ def extract_features_from_csv(csv_path: Path) -> Optional[np.ndarray]:
     return features
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# Step 2: Sliding-Window Segmentation
-# ═══════════════════════════════════════════════════════════════════════════
+# --- windowing ---
 
 def segment_into_windows(
     features: np.ndarray,
@@ -129,9 +121,7 @@ def segment_into_windows(
     return np.array(windows, dtype=np.float32)  # (N, 4, W)
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# Step 3 & 4: Subject-Disjoint Split + Bot Quarantine
-# ═══════════════════════════════════════════════════════════════════════════
+# --- train/val/test splits ---
 
 def _process_records(
     records: List[CSVRecord], desc: str = ""
@@ -186,7 +176,7 @@ def build_splits(manifest: DataManifest) -> Tuple[
     all_subjects = sorted(human_by_subject.keys())
     print(f"INFO: Total unique subjects with ≥1 window: {len(all_subjects)}")
 
-    # ── Deterministic subject-level split ─────────────────────────────────
+    # deterministic subject split
     # Hash subjects to get reproducible ordering independent of filesystem
     def _hash_key(s: str) -> str:
         return hashlib.md5(s.encode()).hexdigest()
@@ -213,7 +203,7 @@ def build_splits(manifest: DataManifest) -> Tuple[
         f"Val: {len(val_set)}  |  Test: {len(test_set)}"
     )
 
-    # ── Assemble human windows ────────────────────────────────────────────
+    # combine human windows
     train_human = np.concatenate(
         [human_by_subject[s] for s in sorted(train_set)], axis=0
     )
@@ -229,7 +219,7 @@ def build_splits(manifest: DataManifest) -> Tuple[
         f"Val: {val_human.shape[0]:,}  |  Test: {test_human.shape[0]:,}"
     )
 
-    # ── Quarantine bots: inject ONLY into val and test ────────────────────
+    # bot data only goes in val and test
     print("INFO: Processing synthesized (bot) records …")
     synth_records_val = [
         r for r in manifest.synth_records if r.subject_uid in val_set
@@ -257,7 +247,7 @@ def build_splits(manifest: DataManifest) -> Tuple[
         f"Test: {test_synth_windows.shape[0]:,}"
     )
 
-    # ── Compose final arrays ──────────────────────────────────────────────
+    # merge it all together
     # Train: human only  (label=1)
     train_data = train_human
     train_labels = np.ones(train_human.shape[0], dtype=np.int64)
@@ -279,9 +269,7 @@ def build_splits(manifest: DataManifest) -> Tuple[
     return train_data, train_labels, val_data, val_labels, test_data, test_labels
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# Step 5: Z-Score Normalisation & Binary Save
-# ═══════════════════════════════════════════════════════════════════════════
+# --- normalization & saving ---
 
 def normalise_and_save(
     train_data: np.ndarray,
@@ -349,16 +337,7 @@ def normalise_and_save(
     print(f"INFO: Binary tensors written to {output_dir}")
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# Pseudo-Anomaly Generation Dataset (Phase 2 requirement)
-# ═══════════════════════════════════════════════════════════════════════════
-
-# (Dataset refactored to src/data/dataset.py)
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-# Stand-alone execution
-# ═══════════════════════════════════════════════════════════════════════════
+# --- standalone run ---
 
 def main():
     print("=" * 60)
@@ -381,7 +360,7 @@ def main():
         test_data, test_labels,
     )
 
-    # ── Quick smoke test of the Dataset class ─────────────────────────────
+    # sanity check the dataset class
     print("-" * 60)
     print("INFO: Smoke-testing KeystrokeDynamicsDataset …")
     train_ds = KeystrokeDynamicsDataset(PROCESSED_DIR / "train.pt")
