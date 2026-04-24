@@ -7,12 +7,17 @@ This repository contains the source code for the paper **"Catching AI Typists wi
 To reproduce the results of the paper end-to-end, simply run the main training and evaluation pipelines sequentially from the project root:
 
 ```bash
-# 1. Run the entire training pipeline
+# 1. Preprocess the Data
+# This will extract features from raw CSVs, apply sliding window segmentation,
+# ensure strict subject-disjoint zero-day splits, and save the binary .pt tensors.
+python -m src.data.preprocess
+
+# 2. Run the entire training pipeline
 # This will train the Hybrid Encoder, TypeNet, and TSFN models, 
 # and then automatically fit the downstream OC-SVM / OC-GMM classifiers.
 python -m src.train.main
 
-# 2. Run the entire evaluation pipeline
+# 3. Run the entire evaluation pipeline
 # This will calculate EER, ROC-AUC, AUPRC, etc., and generate all figures 
 # (ROC curves, Loss curves, PR curves, and UMAP latent space projections).
 python -m src.evaluate.main
