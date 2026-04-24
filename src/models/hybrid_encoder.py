@@ -3,12 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class HybridEncoder(nn.Module):
-    """
-    Hybrid CNN + LSTM Encoder strictly following the original architectural prompt:
-    - Conv Block 1: (4 -> 32) + MaxPool(2)
-    - Conv Block 2: (32 -> 64) + MaxPool(2)
-    - LSTM Block: (64 -> 128)
-    """
     def __init__(self, in_channels=4, embed_dim=128):
         super().__init__()
         self._is_first = True
