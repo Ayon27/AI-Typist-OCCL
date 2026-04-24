@@ -1,7 +1,3 @@
-# Catching AI Typists with Contrastive Learning
-
-This repository contains the source code for the paper **"Catching AI Typists with Contrastive Learning"**, which proposes a One-Class Contrastive Learning (OCCL) framework to detect AI-generated keystroke sequences.
-
 ## 🚀 Quick Start: End-to-End Pipeline
 
 To reproduce the results of the paper end-to-end, simply run the main training and evaluation pipelines sequentially from the project root:
